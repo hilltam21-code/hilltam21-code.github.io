@@ -58,7 +58,7 @@
             font-size: 14px;
             opacity: 0.9;
         }
-        /* 返回按鈕 */
+        /* 返回按鈕（修復跳轉路徑+增強點擊反饋） */
         .back-btn {
             display: inline-block;
             margin: 15px 0;
@@ -69,11 +69,19 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
+            cursor: pointer; /* 明確標記可點擊 */
+            padding: 8px 12px; /* 擴大點擊區域 */
+            border-radius: 6px;
         }
         .back-btn:hover {
             color: #1f618d;
             text-decoration: none;
             transform: translateX(-3px);
+            background-color: rgba(41, 128, 185, 0.05);
+        }
+        .back-btn:active {
+            transform: translateX(-1px);
+            background-color: rgba(41, 128, 185, 0.1);
         }
         /* 產品切換標籤 - 短長方形樣式 */
         .product-tabs {
@@ -408,6 +416,40 @@
         .payment-icons img:hover {
             opacity: 1;
         }
+        /* 返回頂部按鈕 - 固定在右下角 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+            border: none;
+        }
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(41, 128, 185, 0.4);
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .back-to-top:active {
+            transform: translateY(-2px);
+        }
         /* 響應式調整 */
         @media (max-width: 768px) {
             .order-wrapper {
@@ -439,6 +481,14 @@
                 text-align: center;
                 min-width: auto;
             }
+            /* 手機端調整返回頂部按鈕位置 */
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
         }
         /* 底部資訊 */
         .footer {
@@ -468,8 +518,10 @@
     </div>
 
     <div class="container">
-        <!-- 返回主頁按鈕 -->
-        <a href="index.html" class="back-btn">← 返回產品主頁</a>
+        <!-- 返回主頁按鈕（修復核心：使用絕對路徑+增加點擊事件備份） -->
+        <a href="./index.html" class="back-btn" onclick="window.location.href='./index.html'; return false;">
+            ← 返回產品主頁
+        </a>
 
         <!-- 產品切換標籤 -->
         <div class="product-tabs">
@@ -807,6 +859,9 @@
         <p>© 2025 WWS 淨水設備 版權所有 | 全球發售 · 品質保證</p>
     </div>
 
+    <!-- 返回頂部按鈕 -->
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
     <script>
         // 當前激活的產品類型
         let activeProduct = 'water-machine';
@@ -842,7 +897,32 @@
                 activeProduct = targetProduct;
                 updateSummary();
             }
+            
+            // 初始化返回頂部按鈕
+            initBackToTop();
         };
+
+        // 返回頂部按鈕功能
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            
+            // 滾動監聽，控制按鈕顯示/隱藏
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) { // 滾動超過300px時顯示
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+            
+            // 點擊按鈕平滑滾回頂部
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth' // 平滑滾動
+                });
+            });
+        }
 
         // 產品切換事件
         document.querySelectorAll('.product-tab').forEach(tab => {
