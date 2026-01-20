@@ -416,7 +416,7 @@
         .payment-icons img:hover {
             opacity: 1;
         }
-        /* 返回頂部按鈕 - 固定在右下角 */
+        /* 返回頂部按鈕 - 固定在右下角（優化顯隱過渡+解決跳動） */
         .back-to-top {
             position: fixed;
             bottom: 30px;
@@ -432,7 +432,7 @@
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
-            transition: all 0.3s ease;
+            transition: all 0.5s ease; /* 延長過渡時間，避免閃爍 */
             opacity: 0;
             visibility: hidden;
             z-index: 999;
@@ -902,16 +902,29 @@
             initBackToTop();
         };
 
-        // 返回頂部按鈕功能
+        // 返回頂部按鈕功能（增加防抖，解決時顯時隱）
         function initBackToTop() {
             const backToTopBtn = document.getElementById('backToTopBtn');
-            
-            // 滾動監聽，控制按鈕顯示/隱藏
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 300) { // 滾動超過300px時顯示
+            let lastScrollY = 0;
+            let ticking = false;
+
+            // 防抖函數：避免滾動時連續觸發
+            function updateBtnState() {
+                // 降低顯示門檻到100px，且判斷滾動方向，減少跳動
+                if (window.scrollY > 100 && window.scrollY > lastScrollY) {
                     backToTopBtn.classList.add('show');
-                } else {
+                } else if (window.scrollY <= 100) {
                     backToTopBtn.classList.remove('show');
+                }
+                lastScrollY = window.scrollY;
+                ticking = false;
+            }
+
+            // 滾動監聽
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(updateBtnState);
+                    ticking = true;
                 }
             });
             
